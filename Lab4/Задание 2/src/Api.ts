@@ -56,11 +56,29 @@ export class Api {
         this.basePath = "https://jsonplaceholder.typicode.com/";
     }
 
+    /**
+     * 
+     * Базовый и минимально достаточный метод для выполнения запросов к Api 
+     * 
+     * @example Пример использования:
+     * ```typescript
+     * methodForGetSomeVeryImportantData() {
+     *      return this.baseFetch('endpointForVeryImportantData');
+     * }
+     * ```
+     * 
+     * @param url Путь, по которому выполняется запрос, он должен быть относительным к this.basePath
+     * @param method Метод запроса, по умлочанию `GET`
+     * @param body (Опционально) Тело запроса в виде объекта
+     * @returns Данные типа `T`, чтобы быть уверенным в том какие данные должны прийти необходимо использовать следующим образом: `this.baseFetch<PostDTO[]>` - данная конструкция означает, что метод `baseFetch` вернёт массив объектов с типом PostDTO
+     * @throws Текст ошибки
+     */
     async baseFetch<T> (
         url: string,
         method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE' = 'GET',
         body?: Record<string, unknown>
     ): Promise<T> {
+
         let fetchParams: RequestInit = { method };
 
         if (body) fetchParams.body = JSON.stringify(body);
@@ -68,32 +86,33 @@ export class Api {
         const response = await fetch(this.basePath + url, fetchParams);
         
         if (!response.ok) {
-            throw new Error(`Ошибка запроса: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return response.json();
+
+        return await response.json();
     } 
 
     getPosts(): Promise<PostDTO[]> {
-        return this.baseFetch<PostDTO[]>('posts');
+        return this.baseFetch<PostDTO[]>('/posts');
     };
 
     getPostByPostId(postId: number): Promise<PostDTO> {
-        return this.baseFetch<PostDTO>(`posts/${postId}`);
+        return this.baseFetch<PostDTO>(`/posts/${postId}`);
     };
 
     createPost(post: PostDTO): Promise<{id: number}> {
-        return this.baseFetch<{id: number}>('posts', 'POST', post);
+        return this.baseFetch<{id: number}>('/posts', 'POST', post);
     };
 
     getComments(): Promise<CommentDTO[]> {
-        return this.baseFetch<CommentDTO[]>('comments');
+        return this.baseFetch<CommentDTO[]>('/comments');
     };
     
     getCommentByCommentId(commentId: number): Promise<CommentDTO> {
-        return this.baseFetch<CommentDTO>(`comments/${commentId}`);
+        return this.baseFetch<CommentDTO>(`/comments/${commentId}`);
     };
 
     getUsers(): Promise<UserDTO[]> {
-        return this.baseFetch<UserDTO[]>('users');
+        return this.baseFetch<UserDTO[]>('/users');
     };
 };
